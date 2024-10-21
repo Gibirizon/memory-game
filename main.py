@@ -22,15 +22,18 @@ class ConfigHandler:
             raise ValueError(f"Could not read config file: {config_path}")
 
         try:
-            # Assuming config file has a [Board] section
-            board_height = self.config.getint("BOARD", "height")
-            board_width = self.config.getint("BOARD", "width")
+            # Assuming config file has a [BOARD] section
+            height = self.config.getint("BOARD", "height")
+            width = self.config.getint("BOARD", "width")
 
             # Validate values
-            if board_height < 1 or board_width < 1:
-                raise ValueError("Board dimensions must be positive integers")
+            if not (1 <= height <= 20 and 1 <= width <= 20):
+                raise ValueError("Board dimensions must be between 1 and 20")
 
-            return {"board_height": board_height, "board_width": board_width}
+            if (height * width) % 2:
+                raise ValueError("Board must have an even number of cards")
+
+            return {"board_height": height, "board_width": width}
         except (
             configparser.NoSectionError,
             configparser.MissingSectionHeaderError,
@@ -45,13 +48,13 @@ class ConfigHandler:
 def main():
     configure_logger()
     config = get_configuration()
-    logger.info(f"Configuration: {config}")
+    logger.info(f"Configuration from file: {config}")
     app = MemoryApp(config=config)
     app.run()
 
 
 def configure_logger():
-    log_format = "%(asctime)s - %(levelname)s - %(message)s"
+    log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     log_date_format = "%Y-%m-%d %H:%M:%S"
     log_th = TextualHandler()
     log_fh = logging.FileHandler(LOG_FILE)
@@ -82,10 +85,9 @@ def get_configuration() -> dict[str, int] | None:
     config_handler = ConfigHandler()
 
     # If config file is provided, try to load it
+    # If no config file provided or loading failed launch interactive prompt from the app later
     if var_args["config_file"]:
         return config_handler.load_config_file(var_args["config_file"])
-
-    # If no config file or loading failed return nothing, launch interactive prompt
 
 
 if __name__ == "__main__":

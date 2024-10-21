@@ -1,0 +1,39 @@
+DashboardScreen {
+    align: center top;
+
+}
+
+#game-container {
+    width: 100%;
+    height: auto;
+    align: center middle;
+    content-align: center middle;
+}
+
+#game-title {
+    text-style: bold;
+    content-align: center middle;
+    width: 40%;
+    margin-bottom: 1;
+    color: $secondary;
+    border-bottom: solid $primary;
+}
+
+#board-size {
+    content-align: center middle;   
+    width: 40%;
+    margin-bottom: 1;
+    color: $text;
+    background: $surface-darken-1;
+    border: tall $primary; 
+}
+
+#player-turn {
+    content-align: center middle;    
+    width: 40%;
+    margin-top: 1;
+    color: $accent;
+    text-style: bold italic;
+    background: $surface-darken-1;     
+    border: tall $accent;    
+}

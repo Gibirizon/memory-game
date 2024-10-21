@@ -27,6 +27,16 @@ Label {
     text-style: italic;
 }
 
+#warning-message {
+    margin-top: 2;
+    width: 100%;
+    background: $error;
+    color: $surface;
+    text-style: bold;
+    border: tall $error-darken-1;
+    text-align: center;
+}
+
 Input {
     margin: 1 0;
     width: 100%;
