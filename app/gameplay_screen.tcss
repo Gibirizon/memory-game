@@ -1,0 +1,88 @@
+DashboardScreen {
+    align: center top;
+
+}
+
+#game-container {
+    width: 100%;
+    height: auto;
+    align: center middle;
+    content-align: center middle;
+}
+
+#game-title {
+    text-style: bold;
+    content-align: center middle;
+    width: 40%;
+    margin-bottom: 1;
+    color: $secondary;
+    border-bottom: solid $primary;
+}
+
+#board-size {
+    content-align: center middle;   
+    width: 40%;
+    margin-bottom: 1;
+    color: $text;
+    background: $surface-darken-1;
+    border: tall $primary; 
+}
+
+#current-player {
+    content-align: center middle;    
+    width: 100%;
+    height: auto;
+    margin-top: 1;
+    color: $text;
+    text-style: bold italic;
+    background: $surface-darken-1;     
+    border: tall $primary;    
+}
+
+ScoreBoard {
+    align: center middle;
+    content-align: center middle;
+    width: 40%;
+    height: auto;
+    margin-top: 1;
+}
+
+#score-container {
+    content-align: center middle;    
+    height: auto;
+    margin-top: 1;
+    color: $accent;
+    text-style: bold italic;
+    background: $surface-darken-1;     
+    border: tall $accent;    
+}
+
+.score {
+    width: 100%;
+    text-align: center;
+}
+
+CardGrid {
+    padding: 1;
+    grid-gutter: 1 1;
+}
+
+Card {
+    width: 10;
+    height: 5;
+    background: $primary-background;
+    color: $text;
+    margin: 1;
+    min-width: 10;
+    min-height: 5;
+    border: tall $primary;
+    content-align: center middle;
+    transition: background 500ms in_out_cubic;
+}
+Card:hover {
+    background: $accent;
+}
+
+Card.-flipped {
+    background: $secondary;
+}
