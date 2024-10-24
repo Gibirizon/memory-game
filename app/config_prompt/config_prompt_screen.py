@@ -11,12 +11,12 @@ from textual.widgets import Button, Input, Label, Static
 logger = logging.getLogger(__name__)
 
 
-class ConfigPromptScreen(ModalScreen[dict[str, int]]):
+class ConfigPromptScreen(ModalScreen):
     """The screen for the configuration prompt."""
 
     CSS_PATH = "config_prompt_screen.tcss"
 
-    def __init__(self, width: int, height: int) -> None:
+    def __init__(self, width: str | None, height: str | None) -> None:
         super().__init__()
         self.width = width
         self.height = height
@@ -29,7 +29,7 @@ class ConfigPromptScreen(ModalScreen[dict[str, int]]):
             Input(
                 id="input_board_width",
                 type="integer",
-                value=str(self.width) if self.width else None,
+                value=self.width if self.width else None,
                 placeholder="Wprowadź szerokość planszy...",
                 validators=[
                     Number(
@@ -42,7 +42,7 @@ class ConfigPromptScreen(ModalScreen[dict[str, int]]):
             Input(
                 id="input_board_height",
                 type="integer",
-                value=str(self.height) if self.height else None,
+                value=self.height if self.height else None,
                 placeholder="Wprowadź wysokość planszy...",
                 validators=[
                     Number(
@@ -67,9 +67,7 @@ class ConfigPromptScreen(ModalScreen[dict[str, int]]):
         if event.validation_result and event.validation_result.is_valid:
             event.input.border_title = "Odpowiednia wartość"
         else:
-            event.input.border_title = (
-                "Niepoprawna wartość - musi być z przedziału od 2 do 6"
-            )
+            event.input.border_title = "Niepoprawna wartość - musi być z przedziału od 2 do 6"
 
     def show_warning(self, message: str) -> None:
         """Add or update warning message."""

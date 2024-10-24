@@ -5,14 +5,24 @@ from typing import cast
 from pyfiglet import figlet_format
 from rich.console import RenderableType
 from rich_pixels import Pixels
-from textual import on
+from textual import on, work
 from textual.app import ComposeResult
 from textual.containers import Container, Grid, Vertical
+from textual.events import Mount
 from textual.screen import Screen
 from textual.widget import Widget
 from textual.widgets import Button, Footer, Header, Label, Static
 
+from app.config_prompt.config_prompt_screen import ConfigPromptScreen
 from app.game_over.game_over_screen import GameOverScreen
+from app.game_saver.game_save_manager import (
+    BoardState,
+    CardsState,
+    GameSaveManager,
+    GameState,
+    PlayersState,
+    PlayerState,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -30,13 +40,20 @@ class ImageWidget(Widget):
 
 
 class CardGrid(Grid):
-    def __init__(self, width: int, height: int, symbols: list[str]) -> None:
+    def __init__(
+        self,
+        width: int,
+        height: int,
+        symbols: list[str],
+        cards_matched: list[bool] = [],
+    ) -> None:
         super().__init__()
         self.width = width
         self.height = height
         self.card_symbols = symbols
         self.styles.grid_size_rows = self.height
         self.styles.grid_size_columns = self.width
+        self.matched_cards = cards_matched
         logger.debug(f"Card symbols: {len(self.card_symbols)}")
 
     def compose(self):
@@ -45,6 +62,14 @@ class CardGrid(Grid):
             for y in range(self.width):
                 position = x * self.width + y
                 yield Card(self.card_symbols[position], (x, y), classes="card")
+
+    def on_mount(self):
+        if self.matched_cards:
+            for index, card in enumerate(cast("list[Card]", self.query("Card.card"))):
+                logger.info(f"Card {index}: {card.symbol}")
+                if self.matched_cards[index]:
+                    card.is_matched = True
+                    card.flip()
 
 
 class Card(Button):
@@ -90,6 +115,20 @@ class ScoreBoard(Vertical):
             )
         yield Label(f"Current Player: {self.current_player}", id="current-player")
 
+    def load_attributes_from_file(
+        self, player1_score: int, player2_score: int, current_player: int
+    ):
+        """Load attributes from file."""
+        self.player1_score = player1_score
+        self.player2_score = player2_score
+        self.current_player = current_player
+        self.query_one(Label).update(
+            f"Player 1: {self.player1_score} | Player 2: {self.player2_score}"
+        )
+        cast(Label, self.query_one("#current-player")).update(
+            f"Current Player: {self.current_player}"
+        )
+
     def update_score(self, player: int):
         """Update the score for a player."""
         if player == 1:
@@ -114,23 +153,30 @@ class ScoreBoard(Vertical):
     def switch_player(self):
         """Switch to the other player."""
         self.current_player = 3 - self.current_player  # Switches between 1 and 2
-        self.query(Label)[1].update(f"Current Player: {self.current_player}")
+        cast(Label, self.query_one("#current-player")).update(
+            f"Current Player: {self.current_player}"
+        )
 
 
 class GameplayScreen(Screen):
     """Main screen for the memory game."""
 
     CSS_PATH = "gameplay_screen.tcss"
-    BINDINGS = [("ctrl+q", "quit", "Quit the game")]
+    BINDINGS = [
+        ("ctrl+q", "quit", "Quit the game"),
+        ("s", "save", "Save the game"),
+    ]
 
-    def __init__(self):
+    def __init__(self, config: dict[str, str]):
         super().__init__()
+        self.config = config
         self.board_height = 0
         self.board_width = 0
         self.flipped_cards: list[Card] = []
         self.can_flip = True
 
     def compose(self) -> ComposeResult:
+        logger.debug("Composing screen...")
         yield Header()
         with Grid(id="header"):
             yield Static(figlet_format("Memory\nGame", font="big"), id="game-title")
@@ -138,11 +184,92 @@ class GameplayScreen(Screen):
             yield ScoreBoard()
         yield Footer()
 
+    @on(Mount)
+    def load_game_state(self) -> None:
+        self.title = "Memory Game"
+        if not self.config.get("load"):
+            self.configure_game()
+            return
+
+        logger.debug("Loading game state from file...")
+        """Load game state from file."""
+        save_manager = GameSaveManager(
+            self.config.get("game_load_file", "game_save.dat"),
+            self.config.get("key_load_file", "save.key"),
+        )
+        if game_state := save_manager.load_game():
+            logger.info(f"Game state: {game_state}")
+            self.update_board_size(game_state.board.width, game_state.board.height)
+
+            scoreboard = self.query_one(ScoreBoard)
+            scoreboard.load_attributes_from_file(
+                game_state.players.player1.score,
+                game_state.players.player2.score,
+                game_state.players.current_player,
+            )
+
+            self.card_symbols = game_state.cards.all_cards
+            grid = CardGrid(
+                self.board_width,
+                self.board_height,
+                self.card_symbols,
+                game_state.cards.matched_cards,
+            )
+
+            self.mount(grid)
+
+            # Game state loaded, no need to start a new game
+            self.app.notify("Game state loaded", timeout=5)
+        else:
+            logger.warning("No saved game found.")
+
+            # Create a new game
+            self.app.notify("Could not load game state, starting a new game...", timeout=5)
+            self.configure_game()
+
+    @work
+    async def configure_game(self) -> None:
+        """Configure the game."""
+        logger.info(f"Config before prompt screen: {self.config}")
+
+        board_dimensions = await self.app.push_screen_wait(
+            ConfigPromptScreen(
+                self.config.get("width"),
+                self.config.get("height"),
+            )
+        )
+
+        logger.info(f"Config after prompt screen: {self.config}")
+
+        # set dimensions and display grid
+
+        self.update_board_size(board_dimensions["board_width"], board_dimensions["board_height"])
+        self.mount_grid()
+
+    def action_save(self) -> None:
+        save_manager = GameSaveManager(
+            self.config.get("game_save_file", "game_save.dat"),
+            self.config.get("key_save_file", "save.key"),
+        )
+        scoreboard = self.query_one(ScoreBoard)
+        all_cards = cast("list[Card]", self.query("Card.card"))
+        game_state = GameState(
+            board=BoardState(width=self.board_width, height=self.board_height),
+            players=PlayersState(
+                player1=PlayerState(score=scoreboard.player1_score),
+                player2=PlayerState(score=scoreboard.player2_score),
+                current_player=scoreboard.current_player,
+            ),
+            cards=CardsState(
+                all_cards=self.card_symbols,
+                matched_cards=[card.is_matched for card in all_cards],
+            ),
+        )
+        saved_file, key_file = save_manager.save_game(game_state)
+        self.app.notify(f"Game saved to {saved_file}\n Key saved to {key_file}", timeout=10)
+
     def action_quit(self) -> None:
         self.app.exit()
-
-    def on_mount(self) -> None:
-        self.title = "Memory Game"
 
     def update_board_size(self, board_width: int, board_height: int) -> None:
         self.board_width = board_width
@@ -211,6 +338,7 @@ class GameplayScreen(Screen):
                 Button("Next player", id="next-button"), id="button-container"
             )
             self.mount(button_container)
+            scoreboard.switch_player()
 
     async def check_game_over(self) -> None:
         """Check if the game is over."""
@@ -229,6 +357,3 @@ class GameplayScreen(Screen):
 
         self.flipped_cards = []
         self.can_flip = True
-
-        scoreboard = self.query_one(ScoreBoard)
-        scoreboard.switch_player()

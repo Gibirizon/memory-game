@@ -3,10 +3,8 @@ GameOverScreen {
 }
 
 .game-over-modal {
-    min-width: 70;
-    min-height: 20;
-    width: 80%;
-    height: 60%;
+    width: 75;
+    height: 30;
     background: #2f2f2f;
     border: solid red;
     align: center middle;
@@ -14,8 +12,7 @@ GameOverScreen {
 
 .game-over {
     color: red;
-    text-align: center;
-    margin: 2 0;
+    margin: 2 5;
 }
 
 #close-button {

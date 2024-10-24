@@ -2,46 +2,37 @@ import argparse
 import configparser
 import logging
 
-from app.memory_app import MemoryApp
 from textual.logging import TextualHandler
 
+from app.memory_app import MemoryApp
+
 LOG_FILE = "memory_game.log"
-DEFAULT_CONFIG = {"board_width": 0, "board_height": 0}
+# DEFAULT_CONFIG = {"board_width": 0, "board_height": 0}
 logger = logging.getLogger(__name__)
 
 
 class ConfigHandler:
     """Handles configuration loading and validation."""
 
-    def __init__(self):
-        self.config = configparser.ConfigParser()
+    def __init__(self, setup_file):
+        self.config = self.read_config(setup_file)
 
-    def load_config_file(self, config_path: str) -> dict[str, int]:
+    def read_config(self, setup_file):
+        config = configparser.ConfigParser(interpolation=None)
+        logger.info("Reading configuration file %s..." % setup_file)
+        config.read(setup_file)
+        logger.info("Read configuration file %s." % setup_file)
+        return config
+
+    def load_config_params(self) -> dict[str, str]:
         """Load and validate configuration from INI file."""
-        if not self.config.read(config_path):
-            raise ValueError(f"Could not read config file: {config_path}")
 
-        try:
-            # Assuming config file has a [BOARD] section
-            height = self.config.getint("BOARD", "height")
-            width = self.config.getint("BOARD", "width")
+        params = {}
+        for section in self.config.sections():
+            for key, value in self.config[section].items():
+                params[key] = value
 
-            return {
-                "board_width": width,
-                "board_height": height,
-            }
-        except (
-            configparser.NoSectionError,
-            configparser.MissingSectionHeaderError,
-            configparser.NoOptionError,
-            ValueError,
-        ) as error:
-            logger.warning(f"Invalid config file: {str(error)}")
-        except Exception as error:
-            logger.warning(f"Unexpected error when loading config: {str(error)}")
-
-        # Return default config if config file is invalid
-        return DEFAULT_CONFIG
+        return params
 
 
 def configure_logger():
@@ -50,14 +41,14 @@ def configure_logger():
     log_th = TextualHandler()
     log_fh = logging.FileHandler(LOG_FILE)
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=logging.INFO,
         format=log_format,
         datefmt=log_date_format,
         handlers=[log_th, log_fh],
     )
 
 
-def get_configuration() -> dict[str, int]:
+def get_configuration() -> dict[str, str]:
     """Function to handle configuration loading."""
 
     # Set up argument parser
@@ -73,14 +64,13 @@ def get_configuration() -> dict[str, int]:
     args = parser.parse_args()
     var_args = vars(args)
 
-    config_handler = ConfigHandler()
-
     # If config file is provided, try to load it
     if var_args["config_file"]:
-        return config_handler.load_config_file(var_args["config_file"])
+        config_handler = ConfigHandler(var_args["config_file"])
+        return config_handler.load_config_params()
 
-    # If no config file provided, return default config
-    return DEFAULT_CONFIG
+    # If no config file provided, return empty dict
+    return {}
 
 
 def main():
