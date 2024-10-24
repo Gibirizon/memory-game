@@ -3,14 +3,11 @@ from random import sample, shuffle
 from typing import cast
 
 from pyfiglet import figlet_format
-from rich.console import RenderableType
-from rich_pixels import Pixels
 from textual import on, work
 from textual.app import ComposeResult
 from textual.containers import Container, Grid, Vertical
 from textual.events import Mount
 from textual.screen import Screen
-from textual.widget import Widget
 from textual.widgets import Button, Footer, Header, Label, Static
 
 from app.config_prompt.config_prompt_screen import ConfigPromptScreen
@@ -23,78 +20,9 @@ from app.game_saver.game_save_manager import (
     PlayersState,
     PlayerState,
 )
+from app.gameplay.cards import Card, CardGrid
 
 logger = logging.getLogger(__name__)
-
-
-class ImageWidget(Widget):
-    """A widget that displays images using rich-pixels with no spacing."""
-
-    def __init__(self, image_path: str) -> None:
-        super().__init__()
-        self.image_path = "images/" + image_path
-
-    def render(self) -> RenderableType:
-        pixels = Pixels.from_image_path(self.image_path)
-        return pixels
-
-
-class CardGrid(Grid):
-    def __init__(
-        self,
-        width: int,
-        height: int,
-        symbols: list[str],
-        cards_matched: list[bool] = [],
-    ) -> None:
-        super().__init__()
-        self.width = width
-        self.height = height
-        self.card_symbols = symbols
-        self.styles.grid_size_rows = self.height
-        self.styles.grid_size_columns = self.width
-        self.matched_cards = cards_matched
-        logger.debug(f"Card symbols: {len(self.card_symbols)}")
-
-    def compose(self):
-        """Pre-define children that will be mounted with the grid"""
-        for x in range(self.height):
-            for y in range(self.width):
-                position = x * self.width + y
-                yield Card(self.card_symbols[position], (x, y), classes="card")
-
-    def on_mount(self):
-        if self.matched_cards:
-            for index, card in enumerate(cast("list[Card]", self.query("Card.card"))):
-                logger.info(f"Card {index}: {card.symbol}")
-                if self.matched_cards[index]:
-                    card.is_matched = True
-                    card.flip()
-
-
-class Card(Button):
-    """A single card in the memory game."""
-
-    def __init__(self, symbol: str, position: tuple[int, int], **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.symbol = symbol
-        self.position = position
-        self.is_flipped = False
-        self.is_matched = False
-
-    def compose(self) -> ComposeResult:
-        yield ImageWidget("question_mark.png")
-
-    def flip(self):
-        """Flip the card."""
-        self.is_flipped = not self.is_flipped
-        images = self.query("ImageWidget")
-        if images:
-            images.last().remove()
-        if self.is_flipped:
-            self.mount(ImageWidget(self.symbol))
-        else:
-            self.mount(ImageWidget("question_mark.png"))
 
 
 class ScoreBoard(Vertical):
@@ -186,21 +114,26 @@ class GameplayScreen(Screen):
 
     @on(Mount)
     def load_game_state(self) -> None:
+        """Load game state from saved file."""
         self.title = "Memory Game"
-        if not self.config.get("load"):
+
+        if self.config.get("load") != "true":
+            # User has not chosen to load a game, start a new one
             self.configure_game()
             return
 
         logger.debug("Loading game state from file...")
-        """Load game state from file."""
+
         save_manager = GameSaveManager(
-            self.config.get("game_load_file", "game_save.dat"),
+            self.config.get(
+                "game_load_file", "game_save.dat"
+            ),  # if user did not specify a load file parameter, use default
             self.config.get("key_load_file", "save.key"),
         )
         if game_state := save_manager.load_game():
-            logger.info(f"Game state: {game_state}")
             self.update_board_size(game_state.board.width, game_state.board.height)
 
+            # udpate scoreboard
             scoreboard = self.query_one(ScoreBoard)
             scoreboard.load_attributes_from_file(
                 game_state.players.player1.score,
@@ -229,9 +162,9 @@ class GameplayScreen(Screen):
 
     @work
     async def configure_game(self) -> None:
-        """Configure the game."""
-        logger.info(f"Config before prompt screen: {self.config}")
+        """Configure the game based on user input."""
 
+        # prompt user for board dimensions
         board_dimensions = await self.app.push_screen_wait(
             ConfigPromptScreen(
                 self.config.get("width"),
@@ -239,16 +172,34 @@ class GameplayScreen(Screen):
             )
         )
 
-        logger.info(f"Config after prompt screen: {self.config}")
-
-        # set dimensions and display grid
-
+        # set dimensions and display grid with cards
         self.update_board_size(board_dimensions["board_width"], board_dimensions["board_height"])
         self.mount_grid()
 
+    def update_board_size(self, board_width: int, board_height: int) -> None:
+        self.board_width = board_width
+        self.board_height = board_height
+        board_size = self.query_one("#board-size", Static)
+        board_size.update(f"Board Size: {self.board_width}x{self.board_height}")
+
+    def mount_grid(self) -> None:
+        """Generate cards by choosing images from 1 to 18.
+        Then double the list and shuffle to place them randomly in the grid layout."""
+        self.card_symbols = sample(
+            [f"{i}.png" for i in range(1, 19)],
+            int((self.board_width * self.board_height) / 2),
+        )
+        self.card_symbols.extend(self.card_symbols)
+        shuffle(self.card_symbols)
+
+        grid = CardGrid(self.board_width, self.board_height, self.card_symbols)
+        self.mount(grid)
+
     def action_save(self) -> None:
         save_manager = GameSaveManager(
-            self.config.get("game_save_file", "game_save.dat"),
+            self.config.get(
+                "game_save_file", "game_save.dat"
+            ),  # save to specific path if specified in config file
             self.config.get("key_save_file", "save.key"),
         )
         scoreboard = self.query_one(ScoreBoard)
@@ -271,33 +222,14 @@ class GameplayScreen(Screen):
     def action_quit(self) -> None:
         self.app.exit()
 
-    def update_board_size(self, board_width: int, board_height: int) -> None:
-        self.board_width = board_width
-        self.board_height = board_height
-        board_size = self.query_one("#board-size", Static)
-        board_size.update(f"Board Size: {self.board_width}x{self.board_height}")
-
-    def mount_grid(self) -> None:
-        # Generate cards by choosing images from 1 to 18, then doubling them and shuffling to place them in the grid
-        self.card_symbols = sample(
-            [f"{i}.png" for i in range(1, 19)],
-            int((self.board_width * self.board_height) / 2),
-        )
-        self.card_symbols.extend(self.card_symbols)
-        shuffle(self.card_symbols)
-        logger.debug(f"Card symbols: {self.card_symbols}")
-
-        grid = CardGrid(self.board_width, self.board_height, self.card_symbols)
-        self.mount(grid)
-
     @on(Button.Pressed, ".card")
     async def on_button_pressed(self, event: Button.Pressed) -> None:
-        """Handle button presses."""
+        """Handle presses on cards."""
 
         if not self.can_flip:
             return
 
-        # when new card is pressed, animate score container to go back to previous color
+        # when new card is pressed, animate score container to go back to its default color
         score_container = self.query_one("#score-container")
         score_container.styles.animate(
             "background",
@@ -345,10 +277,13 @@ class GameplayScreen(Screen):
         cards = cast("list[Card]", self.query("Card.card"))
         matched_cards = [True if card.is_matched else False for card in cards]
         if all(matched_cards):
-            self.app.push_screen(GameOverScreen())
+            scoreboard = self.query_one(ScoreBoard)
+            self.app.push_screen(
+                GameOverScreen(scoreboard.player1_score, scoreboard.player2_score)
+            )
 
     @on(Button.Pressed, "#next-button")
-    def next_player_turn(self, event: Button.Pressed) -> None:
+    def next_player_turn(self) -> None:
         self.query_one("#button-container").remove()
 
         card1, card2 = self.flipped_cards

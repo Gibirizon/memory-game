@@ -7,7 +7,6 @@ from textual.logging import TextualHandler
 from app.memory_app import MemoryApp
 
 LOG_FILE = "memory_game.log"
-# DEFAULT_CONFIG = {"board_width": 0, "board_height": 0}
 logger = logging.getLogger(__name__)
 
 
@@ -19,13 +18,13 @@ class ConfigHandler:
 
     def read_config(self, setup_file):
         config = configparser.ConfigParser(interpolation=None)
-        logger.info("Reading configuration file %s..." % setup_file)
+        logger.info(f"Reading configuration file {setup_file}...")
         config.read(setup_file)
-        logger.info("Read configuration file %s." % setup_file)
+        logger.info("Read configuration file {setup_file}.")
         return config
 
     def load_config_params(self) -> dict[str, str]:
-        """Load and validate configuration from INI file."""
+        """Load configuration from INI file."""
 
         params = {}
         for section in self.config.sections():
@@ -67,16 +66,20 @@ def get_configuration() -> dict[str, str]:
     # If config file is provided, try to load it
     if var_args["config_file"]:
         config_handler = ConfigHandler(var_args["config_file"])
-        return config_handler.load_config_params()
+        params = config_handler.load_config_params()
+        logger.info(f"Parameters from INI file: {params}")
+        return params
 
     # If no config file provided, return empty dict
+    logger.info("No configuration file provided.")
     return {}
 
 
 def main():
     configure_logger()
+
     config = get_configuration()
-    logger.info(f"Configuration from file: {config}")
+
     app = MemoryApp(config=config)
     app.run()
 

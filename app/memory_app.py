@@ -1,9 +1,7 @@
 import logging
 
-from textual import work
 from textual.app import App
 
-from app.config_prompt.config_prompt_screen import ConfigPromptScreen
 from app.gameplay.gameplay_screen import GameplayScreen
 
 logger = logging.getLogger(__name__)

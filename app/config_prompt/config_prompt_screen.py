@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class ConfigPromptScreen(ModalScreen):
-    """The screen for the configuration prompt."""
+    """The screen for the configuration prompt to get board dimensions."""
 
     CSS_PATH = "config_prompt_screen.tcss"
 
@@ -22,15 +22,14 @@ class ConfigPromptScreen(ModalScreen):
         self.height = height
 
     def compose(self) -> ComposeResult:
-        logger.debug(f"Width: {self.width}, Height: {self.height}")
         yield Container(
-            Static("Wymiary planszy", id="title"),
-            Label("Szerokość planszy"),
+            Static("Board Size", id="title"),
+            Label("Board Width"),
             Input(
                 id="input_board_width",
                 type="integer",
                 value=self.width if self.width else None,
-                placeholder="Wprowadź szerokość planszy...",
+                placeholder="Enter board width...",
                 validators=[
                     Number(
                         minimum=1,
@@ -38,12 +37,12 @@ class ConfigPromptScreen(ModalScreen):
                     )
                 ],
             ),
-            Label("Wysokość planszy"),
+            Label("Board Height"),
             Input(
                 id="input_board_height",
                 type="integer",
                 value=self.height if self.height else None,
-                placeholder="Wprowadź wysokość planszy...",
+                placeholder="Enter board height...",
                 validators=[
                     Number(
                         minimum=1,
@@ -51,23 +50,25 @@ class ConfigPromptScreen(ModalScreen):
                     )
                 ],
             ),
-            Button("Potwierdź", id="submit_button", variant="primary"),
+            Button("Confirm", id="submit_button", variant="primary"),
             id="form-container",
             classes="form",
         )
 
     @on(Input.Changed)
     def add_titles_to_inputs(self, event: Input.Changed) -> None:
-        """Clear warning message when user starts typing."""
+        """
+        Clear warning message when user starts typing.
+        Validate input as user types.
+        """
         existing_warning = self.query("#warning-message")
         if existing_warning:
             existing_warning.last().remove()
 
-        """Validate input as user types."""
         if event.validation_result and event.validation_result.is_valid:
-            event.input.border_title = "Odpowiednia wartość"
+            event.input.border_title = "Appropriate value"
         else:
-            event.input.border_title = "Niepoprawna wartość - musi być z przedziału od 2 do 6"
+            event.input.border_title = "Invalid value - must be between 2 and 6"
 
     def show_warning(self, message: str) -> None:
         """Add or update warning message."""
@@ -90,7 +91,7 @@ class ConfigPromptScreen(ModalScreen):
 
         # Check if both inputs have values
         if not height_input.value or not width_input.value:
-            self.show_warning("Oba pola muszą być wypełnione!")
+            self.show_warning("Both fields are required!")
             return
 
         height = int(height_input.value)
@@ -98,12 +99,12 @@ class ConfigPromptScreen(ModalScreen):
 
         # Validate ranges
         if not (2 <= height <= 6 and 2 <= width <= 6):
-            self.show_warning("Wymiary planszy muszą być między 2 a 6!")
+            self.show_warning("Board size must be between 2 and 6!")
             return
 
-        # All cards number should be an even number - show a message
+        # All cards number should be an even number
         if (height * width) % 2:
-            self.show_warning("Plansza musi zawierać parzystą liczbę kart!")
+            self.show_warning("Board size must be an even number!")
             return
 
         # Submit values

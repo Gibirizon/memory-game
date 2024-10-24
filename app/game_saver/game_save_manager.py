@@ -64,6 +64,8 @@ class GameSaveManager:
         self.key_file = (
             key_file if os.path.isabs(key_file) else os.path.join(current_dir, key_file)
         )
+        logger.info(f"Save manager: save file: {self.save_file}")
+        logger.info(f"Save manager: key file: {self.key_file}")
 
         if os.path.exists(self.key_file):
             with open(self.key_file, "rb") as f:
