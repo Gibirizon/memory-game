@@ -2,11 +2,11 @@ import argparse
 import configparser
 import logging
 
+from app.memory_app import MemoryApp
 from textual.logging import TextualHandler
 
-from app.memory_app import MemoryApp
-
 LOG_FILE = "memory_game.log"
+DEFAULT_CONFIG = {"board_width": 0, "board_height": 0}
 logger = logging.getLogger(__name__)
 
 
@@ -16,7 +16,7 @@ class ConfigHandler:
     def __init__(self):
         self.config = configparser.ConfigParser()
 
-    def load_config_file(self, config_path: str) -> dict[str, int] | None:
+    def load_config_file(self, config_path: str) -> dict[str, int]:
         """Load and validate configuration from INI file."""
         if not self.config.read(config_path):
             raise ValueError(f"Could not read config file: {config_path}")
@@ -26,14 +26,10 @@ class ConfigHandler:
             height = self.config.getint("BOARD", "height")
             width = self.config.getint("BOARD", "width")
 
-            # Validate values
-            if not (1 <= height <= 20 and 1 <= width <= 20):
-                raise ValueError("Board dimensions must be between 1 and 20")
-
-            if (height * width) % 2:
-                raise ValueError("Board must have an even number of cards")
-
-            return {"board_height": height, "board_width": width}
+            return {
+                "board_width": width,
+                "board_height": height,
+            }
         except (
             configparser.NoSectionError,
             configparser.MissingSectionHeaderError,
@@ -44,13 +40,8 @@ class ConfigHandler:
         except Exception as error:
             logger.warning(f"Unexpected error when loading config: {str(error)}")
 
-
-def main():
-    configure_logger()
-    config = get_configuration()
-    logger.info(f"Configuration from file: {config}")
-    app = MemoryApp(config=config)
-    app.run()
+        # Return default config if config file is invalid
+        return DEFAULT_CONFIG
 
 
 def configure_logger():
@@ -66,7 +57,7 @@ def configure_logger():
     )
 
 
-def get_configuration() -> dict[str, int] | None:
+def get_configuration() -> dict[str, int]:
     """Function to handle configuration loading."""
 
     # Set up argument parser
@@ -85,9 +76,19 @@ def get_configuration() -> dict[str, int] | None:
     config_handler = ConfigHandler()
 
     # If config file is provided, try to load it
-    # If no config file provided or loading failed launch interactive prompt from the app later
     if var_args["config_file"]:
         return config_handler.load_config_file(var_args["config_file"])
+
+    # If no config file provided, return default config
+    return DEFAULT_CONFIG
+
+
+def main():
+    configure_logger()
+    config = get_configuration()
+    logger.info(f"Configuration from file: {config}")
+    app = MemoryApp(config=config)
+    app.run()
 
 
 if __name__ == "__main__":

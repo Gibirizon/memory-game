@@ -16,18 +16,25 @@ class ConfigPromptScreen(ModalScreen[dict[str, int]]):
 
     CSS_PATH = "config_prompt_screen.tcss"
 
+    def __init__(self, width: int, height: int) -> None:
+        super().__init__()
+        self.width = width
+        self.height = height
+
     def compose(self) -> ComposeResult:
+        logger.debug(f"Width: {self.width}, Height: {self.height}")
         yield Container(
             Static("Wymiary planszy", id="title"),
             Label("Szerokość planszy"),
             Input(
                 id="input_board_width",
                 type="integer",
+                value=str(self.width) if self.width else None,
                 placeholder="Wprowadź szerokość planszy...",
                 validators=[
                     Number(
                         minimum=1,
-                        maximum=20,
+                        maximum=6,
                     )
                 ],
             ),
@@ -35,11 +42,12 @@ class ConfigPromptScreen(ModalScreen[dict[str, int]]):
             Input(
                 id="input_board_height",
                 type="integer",
+                value=str(self.height) if self.height else None,
                 placeholder="Wprowadź wysokość planszy...",
                 validators=[
                     Number(
                         minimum=1,
-                        maximum=20,
+                        maximum=6,
                     )
                 ],
             ),
@@ -60,7 +68,7 @@ class ConfigPromptScreen(ModalScreen[dict[str, int]]):
             event.input.border_title = "Odpowiednia wartość"
         else:
             event.input.border_title = (
-                "Niepoprawna wartość - musi być z przedziału od 1 do 20"
+                "Niepoprawna wartość - musi być z przedziału od 2 do 6"
             )
 
     def show_warning(self, message: str) -> None:
@@ -91,8 +99,8 @@ class ConfigPromptScreen(ModalScreen[dict[str, int]]):
         width = int(width_input.value)
 
         # Validate ranges
-        if not (1 <= height <= 20 and 1 <= width <= 20):
-            self.show_warning("Wymiary planszy muszą być między 1 a 20!")
+        if not (2 <= height <= 6 and 2 <= width <= 6):
+            self.show_warning("Wymiary planszy muszą być między 2 a 6!")
             return
 
         # All cards number should be an even number - show a message
@@ -103,7 +111,7 @@ class ConfigPromptScreen(ModalScreen[dict[str, int]]):
         # Submit values
         self.dismiss(
             {
-                "board_height": int(height_input.value),
                 "board_width": int(width_input.value),
+                "board_height": int(height_input.value),
             }
         )
