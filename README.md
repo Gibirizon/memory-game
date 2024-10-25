@@ -138,7 +138,7 @@ python main.py --help
 - Wczytywanie stanu gry jest wykonywane za pomocą pliku konfiguracyjnego opisanego w dalszej części.
 - `Ctrl+p` wyświetli możliwe do wykonania akcje.
 - Za pomocą klawisza `Tab` można poruszać się po planszy i przyciskach.
-- W przypadku jakichkolwiek błędów proszę przejrzeć plik: `memory_game.log` znajdujący się w katalogu gry.
+- W przypadku jakichkolwiek błędów proszę przejrzeć plik: `memory_game.log` znajdujący się w katalogu, z którego zostaje uruchomiona gra.
 
 ## Główne funkcjonalności
 
@@ -166,7 +166,7 @@ Gra może być konfigurowana poprzez plik INI zawierający następujące sekcje:
 
 > **Uwaga:** Zawartość pliku `game_save_file` zostanie całkowicie zastąpiona przy zapisywaniu stanu gry.
 
-> **INFO:** Domyślnie stan gry zostanie zapisany w katalogu, gdzie znajduje się gra w plikach game_save.dat i save.key.
+> **INFO:** Domyślnie stan gry zostanie zapisany w katalogu, z którego zostaje uruchumiona gra w plikach game_save.dat i save.key.
 
 ### [LOAD_GAME]
 
@@ -174,9 +174,9 @@ Gra może być konfigurowana poprzez plik INI zawierający następujące sekcje:
 - `key_load_file` - ścieżka do pliku z kluczem szyfrowania pozwalającym na odczytanie stanu gry
 - `load` - flaga określająca czy wczytać zapisaną grę (true/false)
 
-> **Uwaga:** Ścieżki w pliku konfiguracyjnym mogą być względne (początkowym katalogiem będzie miejsce katalogu z grą - _current working directory_) lub absolutne.
+> **Uwaga:** Ścieżki w pliku konfiguracyjnym mogą być względne (początkowym katalogiem będzie miejsce uruchomienia gry - _current working directory_) lub absolutne.
 
-> **INFO:** Jeżeli load jest ustawione na true, stan gry zostanie wczytany domyślnie z plików game_save.dat i save.key w katalogu gry. Wczytanie stanu gry jest wykonywane automatycznie przy uruchamianiu.
+> **INFO:** Jeżeli load jest ustawione na true, stan gry zostanie wczytany domyślnie z plików game_save.dat i save.key w katalogu uruchomienia gry. Wczytanie stanu gry jest wykonywane automatycznie przy uruchamianiu.
 
 Przykładowy plik `config.ini`:
 

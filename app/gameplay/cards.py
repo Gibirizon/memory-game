@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import cast
 
 from rich.console import RenderableType
@@ -18,7 +19,8 @@ class ImageWidget(Widget):
 
     def __init__(self, image_path: str) -> None:
         super().__init__()
-        self.image_path = "images/" + image_path
+
+        self.image_path = os.path.join(os.path.dirname(__file__), "../../images", image_path)
 
     def render(self) -> RenderableType:
         pixels = Pixels.from_image_path(self.image_path)
