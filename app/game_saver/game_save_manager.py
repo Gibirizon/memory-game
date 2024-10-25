@@ -3,9 +3,11 @@ import logging
 import os
 from dataclasses import asdict, dataclass
 
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 
 logger = logging.getLogger(__name__)
+DEFAULT_SAVE_FILE = "game_save.dat"
+DEFAULT_KEY_FILE = "save.key"
 
 
 @dataclass
@@ -55,8 +57,12 @@ class GameState:
 
 
 class GameSaveManager:
-    def __init__(self, save_file: str = "game_save.dat", key_file: str = "save.key") -> None:
+    def __init__(self, save_file: str, key_file: str) -> None:
         current_dir = os.getcwd()
+
+        # if save_file or key_file was left empty in INI file, use default values
+        save_file = save_file if save_file else DEFAULT_SAVE_FILE
+        key_file = key_file if key_file else DEFAULT_KEY_FILE
 
         self.save_file = (
             save_file if os.path.isabs(save_file) else os.path.join(current_dir, save_file)
@@ -76,7 +82,18 @@ class GameSaveManager:
             with open(self.key_file, "wb") as f:
                 f.write(self.key)
 
-        self.fernet = Fernet(self.key)
+        try:
+            self.fernet = Fernet(self.key)
+        except ValueError as e:
+            logger.error(f"Invalid key, overwriting key file and generating new key, error: {e}")
+            self.generate_key()
+            self.fernet = Fernet(self.key)
+
+    def generate_key(self):
+        self.key = Fernet.generate_key()
+        os.makedirs(os.path.dirname(self.key_file), exist_ok=True)
+        with open(self.key_file, "wb") as f:
+            f.write(self.key)
 
     def save_game(self, game_state: GameState) -> tuple[str, str]:
         """
@@ -110,6 +127,12 @@ class GameSaveManager:
         with open(self.save_file, "rb") as f:
             encrypted_data = f.read()
 
-        json_data = self.fernet.decrypt(encrypted_data).decode()
+        try:
+            json_data = self.fernet.decrypt(encrypted_data).decode()
+        except InvalidToken:
+            logger.error("Save file is corrupted, maybe it was decrpted with wrong key")
+            return None
+
         data_dict = json.loads(json_data)
+        logger.info(f"Loaded game state: {data_dict}")
         return GameState.from_dict(data_dict)
