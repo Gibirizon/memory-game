@@ -44,7 +44,11 @@ Gra została stworzona z wykorzystaniem nowoczesnych bibliotek Pythona, zapewnia
 
 ### Windows
 
-1. Pobierz i zainstaluj Pythona ze strony [python.org](https://python.org)
+1. Instalacja Pythona:
+
+   - Pobierz i zainstaluj Python 3.8 lub nowszy ze strony [python.org](https://python.org)
+   - Podczas instalacji zaznacz opcję "Add Python to environment variables"
+
 2. Otwórz wiersz poleceń (cmd) jako administrator
 3. Przejdź do katalogu z grą:
 
@@ -136,7 +140,7 @@ python main.py --help
 - Aby wyjść z gry należy użyć skrótu klawiszowego `ctrl+q`.
 - Aby zapisać stan gry należy użyć klawisza `s`.
 - Wczytywanie stanu gry jest wykonywane za pomocą pliku konfiguracyjnego opisanego w dalszej części.
-- `Ctrl+p` wyświetli możliwe do wykonania akcje.
+- `ctrl+p` wyświetli możliwe do wykonania akcje.
 - Za pomocą klawisza `Tab` można poruszać się po planszy i przyciskach.
 - W przypadku jakichkolwiek błędów proszę przejrzeć plik: `memory_game.log` znajdujący się w katalogu, z którego zostaje uruchomiona gra.
 

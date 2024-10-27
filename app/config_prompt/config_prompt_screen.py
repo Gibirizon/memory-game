@@ -32,7 +32,7 @@ class ConfigPromptScreen(ModalScreen):
                 placeholder="Enter board width...",
                 validators=[
                     Number(
-                        minimum=1,
+                        minimum=2,
                         maximum=6,
                     )
                 ],
@@ -45,7 +45,7 @@ class ConfigPromptScreen(ModalScreen):
                 placeholder="Enter board height...",
                 validators=[
                     Number(
-                        minimum=1,
+                        minimum=2,
                         maximum=6,
                     )
                 ],
