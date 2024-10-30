@@ -21,19 +21,19 @@ Gra została stworzona z wykorzystaniem nowoczesnych bibliotek Pythona, zapewnia
 
 ### Windows terminal
 
-![windows terminal gameplay](./screenshots/windows_terminal_gameplay.png)
-![windows terminal game over](./screenshots/windows_terminal_game_over.png)
+![windows terminal gameplay](./docs/screenshots/windows_terminal_gameplay.png)
+![windows terminal game over](./docs/screenshots/windows_terminal_game_over.png)
 
 ### Linux
 
 - _Gnome terminal_
 
-![gnome terminal gameplay](./screenshots/gnome_terminal.png)
+![gnome terminal gameplay](./docs/screenshots/gnome_terminal.png)
 
 - _Kitty terminal_
 
-![kitty board](./screenshots/kitty_terminal_board.png)
-![kitty gameplay](./screenshots/kitty_terminal_gameplay.png)
+![kitty board](./docs/screenshots/kitty_terminal_board.png)
+![kitty gameplay](./docs/screenshots/kitty_terminal_gameplay.png)
 
 ## Instalacja
 

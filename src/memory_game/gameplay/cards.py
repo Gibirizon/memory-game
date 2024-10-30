@@ -20,8 +20,8 @@ class ImageWidget(Widget):
     def __init__(self, image_path: str) -> None:
         super().__init__()
 
-        current_dir = pathlib.Path(__file__).parent
-        self.image_path = current_dir.parent.parent / "images" / image_path
+        project_dir = pathlib.Path(__file__).parent.parent.parent.parent
+        self.image_path = project_dir / "assets" / "images" / image_path
 
     def render(self) -> RenderableType:
         pixels = Pixels.from_image_path(self.image_path)

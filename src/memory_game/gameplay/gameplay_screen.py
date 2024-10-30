@@ -10,9 +10,9 @@ from textual.events import Mount
 from textual.screen import Screen
 from textual.widgets import Button, Footer, Header, Label, Static
 
-from app.config_prompt.config_prompt_screen import ConfigPromptScreen
-from app.game_over.game_over_screen import GameOverScreen
-from app.game_saver.game_save_manager import (
+from memory_game.config_prompt.config_prompt_screen import ConfigPromptScreen
+from memory_game.game_over.game_over_screen import GameOverScreen
+from memory_game.game_saver.game_save_manager import (
     BoardState,
     CardsState,
     GameSaveManager,
@@ -20,7 +20,7 @@ from app.game_saver.game_save_manager import (
     PlayersState,
     PlayerState,
 )
-from app.gameplay.cards import Card, CardGrid
+from memory_game.gameplay.cards import Card, CardGrid
 
 logger = logging.getLogger(__name__)
 
