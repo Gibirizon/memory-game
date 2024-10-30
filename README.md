@@ -1,23 +1,26 @@
+[![en](https://img.shields.io/badge/lang-en-red.svg)](./README.md)
+[![pl](https://img.shields.io/badge/lang-pl-white.svg)](./README-PL.md)
+
 # Memory Game
 
-## Spis treści
+## Table of Contents
 
-- [Opis gry](#opis-gry)
-- [Zrzuty ekranu](#zrzuty-ekranu)
-- [Instalacja](#instalacja)
+- [Game Description](#game-description)
+- [Screenshots](#screenshots)
+- [Installation](#installation)
   - [Windows](#windows)
   - [Linux](#linux)
-- [Instrukcja dla gracza](#instrukcja-dla-gracza)
-- [Główne funkcjonalności](#główne-funkcjonalności)
-- [Konfiguracja](#konfiguracja)
+- [Player Instructions](#player-instructions)
+- [Main Features](#main-features)
+- [Configuration](#configuration)
 
-## Opis gry
+## Game Description
 
-Memory Game to klasyczna gra pamięciowa zaimplementowana jako aplikacja konsolowa dla dwóch graczy. Gracze na zmianę odkrywają po dwie karty, starając się odnaleźć pary identycznych symboli. Gracz, który znajdzie parę, może wykonać kolejny ruch. Wygrywa osoba, która zbierze najwięcej par.
+Memory Game is a classic memory game implemented as a console application for two players. Players take turns revealing two cards, trying to find pairs of identical symbols. A player who finds a pair can take another turn. The person who collects the most pairs wins.
 
-Gra została stworzona z wykorzystaniem nowoczesnych bibliotek Pythona, zapewniających przyjemny interfejs użytkownika mimo konsolowego charakteru aplikacji.
+The game was created using modern Python libraries, providing a pleasant user interface despite its console-based nature.
 
-## Zrzuty ekranu
+## Screenshots
 
 ### Windows terminal
 
@@ -35,154 +38,180 @@ Gra została stworzona z wykorzystaniem nowoczesnych bibliotek Pythona, zapewnia
 ![kitty board](./docs/screenshots/kitty_terminal_board.png)
 ![kitty gameplay](./docs/screenshots/kitty_terminal_gameplay.png)
 
-## Instalacja
+## Installation
 
-### Wymagania systemowe
+### System Requirements
 
-- Python 3.8 lub nowszy
-- Pip (menedżer pakietów Pythona)
+- Python 3.8 or newer
+- Pip (Python package manager)
 
 ### Windows
 
-1. Instalacja Pythona:
-
-   - Pobierz i zainstaluj Python 3.8 lub nowszy ze strony [python.org](https://python.org)
-   - Podczas instalacji zaznacz opcję "Add Python to environment variables"
-
-2. Otwórz wiersz poleceń (cmd) jako administrator
-3. Przejdź do katalogu z grą:
+1. Install Python:
+   - Download and install Python 3.8 or newer from [python.org](https://python.org)
+   - During installation, check "Add Python to environment variables"
+2. Open Command Prompt (cmd) as administrator
+3. Clone the repository and navigate to the project directory:
 
 ```cmd
-cd ścieżka\do\katalogu\z\grą
+git clone <repository-url>
+cd memory-game
 ```
 
-4. Stwórz i aktywuj wirtualne środowisko:
+4. Create and activate virtual environment:
 
 ```cmd
 python -m venv venv
 venv\Scripts\activate
 ```
 
-5. Zainstaluj wymagane pakiety:
+5. Install the game:
+
+   Option 1 - Install required packages:
 
 ```cmd
 pip install -r requirements.txt
 ```
 
+Option 2 - Install as an editable package:
+
+```cmd
+pip install -e .
+```
+
 ### Linux
 
-1. Zainstaluj Pythona (jeśli nie jest zainstalowany):
+1. Install Python (if not installed):
 
-- _Debian based distributions_ (na innych dystrybucjach należy użyć innego systemu zarządzania pakietami i odpowiadających pakietów)
+- _Debian based distributions_ (use appropriate package manager and packages for other distributions)
 
 ```bash
 sudo apt-get update
-sudo apt-get install python3 python3-pip python3-venv
+sudo apt-get install python3 python3-pip python3-venv git
 ```
 
-2. Przejdź do katalogu z grą:
+2. Clone the repository and navigate to the project directory:
 
 ```bash
-cd ścieżka/do/katalogu/z/grą
+git clone <repository-url>
+cd memory-game
 ```
 
-3. Stwórz i aktywuj wirtualne środowisko:
+3. Create and activate virtual environment:
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-4. Zainstaluj wymagane pakiety:
+4. Install the game:
+
+   Option 1 - Install required packages:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Instrukcja dla gracza
-
-### Uruchomienie gry
-
-1. Z domyślnymi ustawieniami:
+Option 2 - Install as an editable package:
 
 ```bash
-python main.py
+pip install -e .
 ```
 
-2. Z własnym plikiem konfiguracyjnym (opisanym poniżej):
+## Player Instructions
+
+### Running the Game
+
+After installation, you can run the game in one of the following ways:
+
+1. If you installed using requirements.txt:
 
 ```bash
-python main.py -c ścieżka/do/config.ini
+python main.py -c config/default.ini
+# or
+python -m src.memory_game.app -c config/default.ini
 ```
 
-- Aby zobaczyć możliwe parametry przy uruchamianiu pliku:
+2. If you installed as a package (pip install -e .):
+
+```bash
+memory-game -c config/default.ini
+```
+
+- To see available launch parameters:
 
 ```bash
 python main.py --help
+# or
+memory-game --help
 ```
 
-### Rozgrywka
+### Gameplay
 
-1. Gra rozpoczyna się od wyboru rozmiaru planszy (max. 6x6)
-2. Po wyborze wymiarów pojawi się plansza z zakrytymi kartami
-3. Gracze na zmianę wybierają po dwie karty
-4. Jeśli karty tworzą parę:
-   - Gracz zdobywa punkt
-   - Karty pozostają odkryte
-   - Gracz może wykonać kolejny ruch
-5. Jeśli karty są różne:
-   - Karty zostają zakryte
-   - Kolejka przechodzi na drugiego gracza
-6. Gra kończy się, gdy wszystkie pary zostaną odnalezione
+1. The game begins with choosing the board size (max. 6x6)
+2. After selecting dimensions, a board with hidden cards appears
+3. Players take turns selecting two cards
+4. If the cards form a pair:
+   - Player gets a point
+   - Cards remain revealed
+   - Player can make another move
+5. If the cards are different:
+   - Cards are hidden again
+   - Turn passes to the other player
+6. Game ends when all pairs are found
 
-### Dodatkowe informacje
+### Additional Information
 
-- Aby wyjść z gry należy użyć skrótu klawiszowego `ctrl+q`.
-- Aby zapisać stan gry należy użyć klawisza `s`.
-- Wczytywanie stanu gry jest wykonywane za pomocą pliku konfiguracyjnego opisanego w dalszej części.
-- `ctrl+p` wyświetli możliwe do wykonania akcje.
-- Za pomocą klawisza `Tab` można poruszać się po planszy i przyciskach.
-- W przypadku jakichkolwiek błędów proszę przejrzeć plik: `memory_game.log` znajdujący się w katalogu, z którego zostaje uruchomiona gra.
+- To exit the game, use the keyboard shortcut `ctrl+q`
+- To save game state, press `s`
+- Loading game state is done through the configuration file described below
+- `ctrl+p` displays possible actions
+- Use `Tab` to navigate through the board and buttons
+- In case of any errors, please check the `memory_game.log` file in the directory from which the game is launched
 
-## Główne funkcjonalności
+## Main Features
 
-- Konfigurowalna wielkość planszy
-- System zapisu i wczytywania stanu gry
-- Szyfrowanie zapisanych stanów gry
-- Intuicyjny interfejs użytkownika w konsoli
-- Kolorowe oznaczenia i symbole kart
-- Licznik punktów dla obu graczy
-- Możliwość konfiguracji poprzez plik INI
+- Configurable board size
+- Game state save and load system
+- Encryption of saved game states
+- Intuitive console user interface
+- Colored markers and card symbols
+- Score counter for both players
+- Configuration through INI file
 
-## Konfiguracja
+## Configuration
 
-Gra może być konfigurowana poprzez plik INI zawierający następujące sekcje:
+The game can be configured through an INI file containing the following sections:
 
 ### [BOARD]
 
-- `width` - szerokość planszy (liczba kart)
-- `height` - wysokość planszy (liczba kart)
+- `width` - board width (number of cards)
+- `height` - board height (number of cards)
 
 ### [SAVE_GAME]
 
-- `game_save_file` - ścieżka do pliku, do którego zostanie zapisany stan gry po wciśnięciu klawisza "s"
-- `key_save_file` - ścieżka do pliku, w któym zostanie zapisany klucz szyfrowania
+- `game_save_file` - path to the file where game state will be saved when pressing "s"
+- `key_save_file` - path to the file where encryption key will be saved
 
-> **Uwaga:** Zawartość pliku `game_save_file` zostanie całkowicie zastąpiona przy zapisywaniu stanu gry.
+> [!NOTE]
+> The content of `game_save_file` will be completely replaced when saving game state.
 
-> **INFO:** Domyślnie stan gry zostanie zapisany w katalogu, z którego zostaje uruchumiona gra w plikach game_save.dat i save.key.
+> [!TIP]
+> By default, game state will be saved in the directory from which the game is launched in files game_save.dat and save.key.
 
 ### [LOAD_GAME]
 
-- `game_load_file` - ścieżka do pliku z zapisanym stanem gry
-- `key_load_file` - ścieżka do pliku z kluczem szyfrowania pozwalającym na odczytanie stanu gry
-- `load` - flaga określająca czy wczytać zapisaną grę (true/false)
+- `game_load_file` - path to the file with saved game state
+- `key_load_file` - path to the file with encryption key for reading game state
+- `load` - flag determining whether to load saved game (true/false)
 
-> **Uwaga:** Ścieżki w pliku konfiguracyjnym mogą być względne (początkowym katalogiem będzie miejsce uruchomienia gry - _current working directory_) lub absolutne.
+> [!NOTE]
+> Paths in the configuration file can be relative (starting directory will be the launch location - _current working directory_) or absolute.
 
-> **INFO:** Jeżeli load jest ustawione na true, stan gry zostanie wczytany domyślnie z plików game_save.dat i save.key w katalogu uruchomienia gry. Wczytanie stanu gry jest wykonywane automatycznie przy uruchamianiu.
+> [!TIP]
+> If load is set to true, game state will be loaded by default from game_save.dat and save.key files in the game launch directory. Loading game state is performed automatically at startup.
 
-Przykładowy plik `config.ini`:
+Example `default.ini` file:
 
 ```ini
 [BOARD]
@@ -190,11 +219,11 @@ width = 2
 height = 3
 
 [SAVE_GAME]
-game_save_file = /home/wojtek/Dokumenty/game_save.dat
-key_save_file = /home/wojtek/Dokumenty/save.key
+game_save_file = /home/user/Documents/game_save.dat
+key_save_file = /home/user/Documents/save.key
 
 [LOAD_GAME]
-game_load_file = /home/wojtek/Dokumenty/game_save.dat
-key_load_file = /home/wojtek/Dokumenty/save.key
+game_load_file = /home/user/Documents/game_save.dat
+key_load_file = /home/user/Documents/save.key
 load = true
 ```
