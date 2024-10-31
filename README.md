@@ -27,7 +27,7 @@ The game was created using modern Python libraries, providing a pleasant user in
 ![windows terminal gameplay](./docs/screenshots/windows_terminal_gameplay.png)
 ![windows terminal game over](./docs/screenshots/windows_terminal_game_over.png)
 
-### Linux
+### Linux terminals
 
 - _Gnome terminal_
 
@@ -67,14 +67,6 @@ venv\Scripts\activate
 
 5. Install the game:
 
-   Option 1 - Install required packages:
-
-```cmd
-pip install -r requirements.txt
-```
-
-Option 2 - Install as an editable package:
-
 ```cmd
 pip install -e .
 ```
@@ -106,14 +98,6 @@ source venv/bin/activate
 
 4. Install the game:
 
-   Option 1 - Install required packages:
-
-```bash
-pip install -r requirements.txt
-```
-
-Option 2 - Install as an editable package:
-
 ```bash
 pip install -e .
 ```
@@ -130,11 +114,7 @@ After installation, you can run the game in one of the following ways:
 python main.py -c config/default.ini
 # or
 python -m src.memory_game.app -c config/default.ini
-```
-
-2. If you installed as a package (pip install -e .):
-
-```bash
+# or
 memory-game -c config/default.ini
 ```
 
