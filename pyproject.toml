@@ -22,3 +22,12 @@ memory-game = "memory_game.app:main"
 # This enables running with the config argument
 [project.entry-points."console_scripts"]
 memory-game = "memory_game.app:main"
+
+[tool.setuptools.package-data]
+memory_game = [
+    "styles/*.tcss",
+    "assets/images/*.png"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from random import sample, shuffle
 from typing import cast
 
@@ -89,7 +90,7 @@ class ScoreBoard(Vertical):
 class GameplayScreen(Screen):
     """Main screen for the memory game."""
 
-    CSS_PATH = "gameplay_screen.tcss"
+    CSS_PATH = Path(__file__).parent.parent / "styles" / "gameplay_screen.tcss"
     BINDINGS = [
         ("ctrl+q", "quit", "Quit the game"),
         ("s", "save", "Save the game"),

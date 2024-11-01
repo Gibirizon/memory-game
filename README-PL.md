@@ -68,7 +68,7 @@ venv\Scripts\activate
 5. Zainstaluj grę:
 
 ```cmd
-pip install -e .
+pip install .
 ```
 
 ### Linux
@@ -99,7 +99,7 @@ source venv/bin/activate
 4. Zainstaluj grę:
 
 ```bash
-pip install -e .
+pip install .
 ```
 
 ## Instrukcja dla gracza
@@ -108,14 +108,14 @@ pip install -e .
 
 Po instalacji możesz uruchomić grę na jeden z następujących sposobów:
 
-1. Jeśli zainstalowano używając requirements.txt:
-
 ```bash
 python main.py -c config/default.ini
 # lub
 python -m src.memory_game.app -c config/default.ini
 # lub
 memory-game -c config/default.ini
+# lub
+memory-game
 ```
 
 - Aby zobaczyć możliwe parametry przy uruchamianiu:

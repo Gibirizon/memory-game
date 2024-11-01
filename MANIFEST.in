@@ -1,5 +1,4 @@
 include README.md
 include requirements.txt
-recursive-include assets *
 recursive-include config *
 recursive-include docs *

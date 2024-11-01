@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 from textual import on
 from textual.app import ComposeResult
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 class ConfigPromptScreen(ModalScreen):
     """The screen for the configuration prompt to get board dimensions."""
 
-    CSS_PATH = "config_prompt_screen.tcss"
+    CSS_PATH = Path(__file__).parent.parent / "styles" / "config_prompt_screen.tcss"
 
     def __init__(self, width: str | None, height: str | None) -> None:
         super().__init__()

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pyfiglet import figlet_format
 from textual.app import ComposeResult
 from textual.containers import Container
@@ -6,7 +8,7 @@ from textual.widgets import Button, Static
 
 
 class GameOverScreen(ModalScreen):
-    CSS_PATH = "game_over_screen.tcss"
+    CSS_PATH = Path(__file__).parent.parent / "styles" / "game_over_screen.tcss"
 
     def __init__(self, player1_score: int, player2_score: int) -> None:
         """Initialize the GameOverScreen to show which player won."""
